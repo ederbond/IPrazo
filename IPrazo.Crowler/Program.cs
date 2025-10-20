@@ -1,14 +1,31 @@
-﻿// See https://aka.ms/new-console-template for more information
-using IPrazo.Crowler;
-using Refit;
+﻿using Refit;
 
-Console.WriteLine("Iniciando...");
+namespace IPrazo.Crowler;
 
-var api = RestService.For<IApi>("https://proxyservers.pro");
+public class Program
+{
+    static async Task Main(string[] args)
+    {
+        Console.WriteLine("Iniciando...");
 
-var response = await api.GetPageDataAsync(1);
+        var api = RestService.For<IApi>("https://proxyservers.pro");
 
-var content = await response.Content.ReadAsStringAsync();
+        for (int i = 1; i <= 8; i++)
+        {
+            var response = await api.GetPageDataAsync(1);
 
+            var html = await response.Content.ReadAsStringAsync();
 
-Console.ReadKey();
+            // Parse table and extract data
+            var data = ProxyParser.ParseProxyTable(html);
+
+            Console.WriteLine($"Encontramos {data.Count} registros.");
+            foreach (var p in data)
+            {
+                Console.WriteLine(p);
+            }
+        }
+
+        Console.ReadKey();
+    }
+}
